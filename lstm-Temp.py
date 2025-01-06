@@ -11,6 +11,7 @@ from tensorflow.keras.optimizers import Adam
 file_path = r'Sheet7'
 df = pd.read_excel(file_path, sheet_name='Sheet1')
 
+
 features = df[['熔接流明', '炉壁测温', '主室炉压', '副室炉压', '晶升位置', '主加热功率']].values
 liquid_level_temp = df['温度'].values
 
@@ -34,9 +35,9 @@ def preprocess_data(features, target, look_back):
 look_back = 8
 X, y, scaler_features, scaler_target = preprocess_data(features, liquid_level_temp, look_back)
 
-train_size = int(len(X) * 0.8)
-X_train, X_test = X[:train_size], X[train_size:]
-y_train, y_test = y[:train_size], y[train_size:]
+split_index = int(len(X) * 0.8)
+X_train, X_test = X[:split_index], X[split_index:]
+y_train, y_test = y[:split_index], y[split_index:]
 
 def create_model(input_shape, neuron_count, learning_rate):
     model = Sequential()
@@ -74,19 +75,21 @@ mse_test = mean_squared_error(y_test_inverse, test_pred)
 r2_test = r2_score(y_test_inverse, test_pred)
 
 with pd.ExcelWriter(r'') as writer:
-
+    # 训练集结果
     train_results_df = pd.DataFrame({
         'True Values': y_train_inverse.flatten(),
         'Predictions': train_pred.flatten(),
     })
     train_results_df.to_excel(writer, sheet_name='Train Results', index=False)
 
+    # 测试集结果
     test_results_df = pd.DataFrame({
         'True Values': y_test_inverse.flatten(),
         'Predictions': test_pred.flatten(),
     })
     test_results_df.to_excel(writer, sheet_name='Test Results', index=False)
 
+    # 性能指标
     metrics_df = pd.DataFrame({
         'Metric': ['MAE', 'MSE', 'R²'],
         'Train': [mae_train, mse_train, r2_train],
