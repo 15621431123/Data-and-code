@@ -41,7 +41,7 @@ X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, r
 def create_model(input_shape, neuron_count, learning_rate):
     model = Sequential()
     model.add(Input(shape=input_shape))
-    model.add(LSTM(neuron_count, activation='relu'))
+    model.add(LSTM(neuron_count, activation='tanh'))
     model.add(Dense(1))
     optimizer = Adam(learning_rate=learning_rate)
     model.compile(loss='mean_squared_error', optimizer=optimizer)
