@@ -73,34 +73,27 @@ def fitness(particle):
     tf.keras.backend.clear_session()
     return mse
 
-
 n_particles = 20
 n_dimensions = 2
 n_iterations =100
 c1 = 2
 c2 = 2
 
-
 neuron_range = (10, 400)
 learning_rate_range = (0.00001, 0.1)
-
 
 particles = np.zeros((n_particles, n_dimensions))
 velocities = np.zeros((n_particles, n_dimensions))
 
-
 particles[:, 0] = np.random.uniform(neuron_range[0], neuron_range[1], n_particles)
 particles[:, 1] = np.random.uniform(learning_rate_range[0], learning_rate_range[1], n_particles)
-
 
 pbest = np.copy(particles)
 pbest_scores = np.array([float('inf')] * n_particles)
 gbest = None
 gbest_score = float('inf')
 
-
 iteration_info = []
-
 
 for iteration in range(n_iterations):
     for i in range(n_particles):
@@ -113,7 +106,6 @@ for iteration in range(n_iterations):
         if score < gbest_score:
             gbest_score = score
             gbest = particles[i]
-
 
     Wmax = 0.9
     Wmin = 0.4
@@ -140,29 +132,22 @@ for iteration in range(n_iterations):
     print("Iteration: {}, Best Score: {:.4f}, Best Parameters: Neurons = {}, Learning Rate = {:.4f}".format(
         iteration, gbest_score, int(gbest[0]), gbest[1]))
 
-
 print("Best parameters: Neurons = {}, Learning Rate = {}".format(int(gbest[0]), gbest[1]))
-
 
 final_model = create_model((look_back, features.shape[1]), int(gbest[0]), gbest[1])
 checkpoint = ModelCheckpoint('best_model_final.keras', monitor='val_loss', save_best_only=True, mode='min', verbose=1)
 early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True)
 
-
 final_model.fit(X_train, y_train, epochs=200, batch_size=32, verbose=2, validation_data=(X_val, y_val),
                 callbacks=[checkpoint, early_stopping])
-
 
 train_pred = final_model.predict(X_train)
 test_pred = final_model.predict(X_test)
 
-
 train_pred = scaler_target.inverse_transform(train_pred)
 test_pred = scaler_target.inverse_transform(test_pred)
 
-
 y_test_inverse = scaler_target.inverse_transform(y_test.reshape(-1, 1))
-
 
 mae = mean_absolute_error(y_test_inverse, test_pred)
 mse = mean_squared_error(y_test_inverse, test_pred)
@@ -170,7 +155,6 @@ mse = mean_squared_error(y_test_inverse, test_pred)
 print("Evaluation Metrics:")
 print("MAE:", mae)
 print("MSE:", mse)
-
 
 output_df = pd.DataFrame(iteration_info, columns=['Iteration', 'Best Score', 'Best Parameters'])
 output_df.to_excel(r'', index=False)
